@@ -97,3 +97,10 @@ def make_dpde(Energy_array):
     lmda = (g_agg/(1e-8))**4
     phi_0 = 5.95e14 #in cm^(-2) s^(-1)
     E_0    = 1.103 #in keV
+    dpdt_list = []
+    for E in Energy_array:
+        if np.isinf(E):
+            dpdt_list.append(0)
+        else:
+            dpdt_list.append(np.sqrt(lmda)*(phi_0)/(E_0) * (E/E_0)**3/(np.exp(E/E_0)-1))
+    return np.array(dpdt_list)
