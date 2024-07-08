@@ -55,23 +55,6 @@ def w_func(Ea, dVector = False, Delta=1.5, E1=1, E2=6):
                 w_list.append(w)
     return np.array(w_list)
 
-def make_dpde(Energy_array):
-    '''Creates dPhi/dE for the parametrised blackbody-like form appearing in older papers. Assumes no axion mass.
-    Units of cm^(-2) s^(-1) keV^(-1)'''
-    g_agg = 2e-10 #g_agg (axion-photon-photon) coupling constant; in GeV^(-1) (for photon coalescence)
-    #Upper bound on g_ag of 2.7e-10 from the Sun, see Di Luzio's review
-    lmda = (g_agg/(1e-8))**4
-    phi_0 = 5.95e14 #in cm^(-2) s^(-1)
-    E_0    = 1.103 #in keV
-
-    dpdt_list = []
-    for E in Energy_array:
-        if np.isinf(E):
-            dpdt_list.append(0)
-        else:
-            dpdt_list.append(np.sqrt(lmda)*(phi_0)/(E_0) * (E/E_0)**3/(np.exp(E/E_0)-1))
-    return np.array(dpdt_list)
-
 def FA_q(q2, Z=51):
     '''Returns form factor given an input in AA^(-2)'''
     qme = q2/0.1308
@@ -87,3 +70,30 @@ def make_delta(energy):
         else:
             output.append(0.15463505424062166*np.sqrt(E/1000)*E)
     return np.array(output)
+
+def hkl_to_cart(hkl_array):
+    '''Converts from hkl basis to cartesian basis, ignoring factor of 2pi/a'''
+    x_axis = - hkl_array[:,0] + hkl_array[:,1] + hkl_array[:,2] 
+    y_axis =   hkl_array[:,0] - hkl_array[:,1] + hkl_array[:,2] 
+    z_axis =   hkl_array[:,0] + hkl_array[:,1] - hkl_array[:,2] 
+    return np.stack((x_axis, y_axis, z_axis), axis=1)
+
+def cart_mag(vec):
+    '''Returns cartesian magnitude of a 1d n-vector'''
+    return np.sqrt(np.sum(vec**2))
+
+def gdotk_cart(g_arr, k_vec):
+    '''Cartesian dot product for 2d array g_arr and 1d 3-vector k_vec. Does not convert to unit vectors'''
+    output_list = []
+    for g_vec in g_arr:
+        output_list.append(g_vec[0]*k_vec[0] + g_vec[1]*k_vec[1] + g_vec[2]*k_vec[2])
+    return np.array(output_list)
+
+def make_dpde(Energy_array):
+    '''Creates dPhi/dE for the parametrised blackbody-like form appearing in older papers. Assumes no axion mass.
+    Units of cm^(-2) s^(-1) keV^(-1)'''
+    g_agg = 2e-10 #g_agg (axion-photon-photon) coupling constant; in GeV^(-1) (for photon coalescence)
+    #Upper bound on g_ag of 2.7e-10 from the Sun, see Di Luzio's review
+    lmda = (g_agg/(1e-8))**4
+    phi_0 = 5.95e14 #in cm^(-2) s^(-1)
+    E_0    = 1.103 #in keV
