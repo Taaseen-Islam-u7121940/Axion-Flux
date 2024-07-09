@@ -89,12 +89,11 @@ def gdotk_cart(g_arr, k_vec):
         output_list.append(g_vec[0]*k_vec[0] + g_vec[1]*k_vec[1] + g_vec[2]*k_vec[2])
     return np.array(output_list)
 
-def make_dpde(Energy_array):
+def make_dpde(Energy_array, coupling = 2e-10):
     '''Creates dPhi/dE for the parametrised blackbody-like form appearing in older papers. Assumes no axion mass.
-    Units of cm^(-2) s^(-1) keV^(-1)'''
-    g_agg = 2e-10 #g_agg (axion-photon-photon) coupling constant; in GeV^(-1) (for photon coalescence)
+    Units of cm^(-2) s^(-1) keV^(-1)''' #g_agg (axion-photon-photon) coupling constant; in GeV^(-1) (for photon coalescence)
     #Upper bound on g_ag of 2.7e-10 from the Sun, see Di Luzio's review
-    lmda = (g_agg/(1e-8))**4
+    lmda = (coupling/(1e-8))**4
     phi_0 = 5.95e14 #in cm^(-2) s^(-1)
     E_0    = 1.103 #in keV
     dpdt_list = []
