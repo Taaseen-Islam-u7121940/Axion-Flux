@@ -104,6 +104,32 @@ def make_dpde(Energy_array, coupling = 2e-10):
             dpdt_list.append(np.sqrt(lmda)*(phi_0)/(E_0) * (E/E_0)**3/(np.exp(E/E_0)-1))
     return np.array(dpdt_list)
 
+def primakoff_flux(Energy_array, coupling=2e-10, m_a = 1e-3):
+    lmda = (coupling/(1e-10))**4
+    phi_e0 = 4.2e10
+
+    dpde_list = []
+    for E in Energy_array:
+        if np.isinf(E):
+            dpde_list.append(0)
+        else:
+            val = np.sqrt(lmda)*phi_e0*E*(E**2 - m_a**2)/(np.exp(E/1.1) - 0.7)*(1+0.02*m_a)
+            dpde_list.append(max(0, val))
+    return np.array(dpde_list)
+
+def coalescence_flux(Energy_array, coupling = 2e-10, m_a = 1e-3):
+    lmda = (coupling/(1e-10))**4
+    phi_e0 = 1.68e9
+
+    dpde_list = []
+    for E in Energy_array:
+        if np.isinf(E) or E<m_a:
+            dpde_list.append(0)
+        else:
+            val = np.sqrt(lmda)*phi_e0*m_a**4*np.sqrt(E**2 - m_a**2)*(1+0.0006*E**3+10/(E**2+0.2))*np.exp(-E)
+            dpde_list.append(val)
+    return np.array(dpde_list)
+
 def k_from_polar(theta,phi):
     return np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
 
