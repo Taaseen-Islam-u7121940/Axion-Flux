@@ -103,3 +103,7 @@ def make_dpde(Energy_array, coupling = 2e-10):
         else:
             dpdt_list.append(np.sqrt(lmda)*(phi_0)/(E_0) * (E/E_0)**3/(np.exp(E/E_0)-1))
     return np.array(dpdt_list)
+
+def k_from_polar(theta,phi):
+    return np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
+
