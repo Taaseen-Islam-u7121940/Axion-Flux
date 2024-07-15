@@ -6,16 +6,11 @@ import astropy.constants as const
 import itertools
 
 #Define useful functions
-def make_hkl(max_h=5,max_k=5,max_l=5, s=False):
-    '''This might need to be remade based on what the "primitives" are. Condition is h,k,l must be even.
-    F mandates h,k,l share a parity, and S mandates h+k+l is even'''
+def make_hkl_f(max_h=5,max_k=5,max_l=5):
+    '''Condition is h,k,l share a parity'''
     full_arr = list(itertools.product(range(max_h), range(max_k), range(max_l)))
-    if s:
-        filter_func = lambda triple: (triple[0]%2 == triple[1]%2) & (triple[0]%2 == triple[2]%2) & (triple[0]%2 == 0)
-        return np.array(list(filter(filter_func, full_arr)))[1:]
-    else:
-        filter_func = lambda triple: (triple[0]%2 == triple[1]%2) & (triple[0]%2 == triple[2]%2)
-        return np.array(list(filter(filter_func, full_arr)))[1:]
+    filter_func = lambda triple: (triple[0]%2 == triple[1]%2) & (triple[0]%2 == triple[2]%2)
+    return np.array(list(filter(filter_func, full_arr)))[1:]
 
 
 def make_hkl_s(max_h=5,max_k=5,max_l=5):
@@ -24,16 +19,26 @@ def make_hkl_s(max_h=5,max_k=5,max_l=5):
     filter_func = lambda triple: sum(triple)%2 == 0
     return np.array(list(filter(filter_func, full_list)))[1:] #remove (0,0,0)
     
+def make_hkl_double(max_h=5,max_k=5,max_l=5):
+    '''Condition is h,k,l are all even'''
+    full_arr = list(itertools.product(range(max_h), range(max_k), range(max_l)))
+    filter_func = lambda triple: (triple[0]%2 == triple[1]%2) & (triple[0]%2 == triple[2]%2) & (triple[0]%2 == 0)
+    return np.array(list(filter(filter_func, full_arr)))[1:]
+
 
 def mod2(vec3):
     '''Returns the dimensionless magnitude of an array of vectors in the (h,k,l) basis. Factor of 2pi/a has to be multiplied manually'''
     return 3*(vec3[:,0]**2 + vec3[:,1]**2 + vec3[:,2]**2) - 2*(vec3[:,0]*vec3[:,1] + vec3[:,1]*vec3[:,2] + vec3[:,2]*vec3[:,0])
 
+def mod2_hkl_solo(vec3):
+    '''Returns magnitude of a single [h,k,l] vector'''
+    return 3*(vec3[0]**2 + vec3[1]**2 + vec3[2]**2) - 2*(vec3[0]*vec3[1] + vec3[1]*vec3[2] + vec3[2]*vec3[0])
+
 def gdotk(hkl_arr):
     '''Returns gHAT dot kHAT, assuming kHat is in the cartesian x direction'''
     return (-hkl_arr[:,0]+hkl_arr[:,1]+hkl_arr[:,2])/np.sqrt(mod2(hkl_arr))
 
-def w_func(Ea, dVector = False, Delta=1.5, E1=1, E2=6):
+def w_func(Ea, dVector = False, Delta=1.5, E1=1, E2=20):
     '''Returns array of W(Ea, Delta, E1, E2) where everything is in keV. Infinite Ea is dealt with'''
     w_list = []
     if dVector:
@@ -55,11 +60,25 @@ def w_func(Ea, dVector = False, Delta=1.5, E1=1, E2=6):
                 w_list.append(w)
     return np.array(w_list)
 
-def FA_q(q2, Z=51):
+def FA_q(q2, Z=51): #This one might be sus
     '''Returns form factor given an input in AA^(-2)'''
     qme = q2/0.1308
     A = 184.15*np.exp(-1/2)*Z**(-1/3)
     return Z*A**2*qme/(1+A**2*qme)
+
+def FA_qv2(q2, Z=51): #This one might be sus
+    '''Returns form factor given an input in AA^(-2)'''
+    qme = q2/(259**2)
+    A = 184.15*np.exp(-1/2)*Z**(-1/3)
+    return Z*A**2*qme/(1+A**2*qme)
+
+def FA_qv3(q2, Z=51): #This one might be sus
+    '''Returns form factor given an input in AA^(-2). Satisfies F(0)=Z'''
+    qme = q2
+    r0 = 184.15*np.exp(-1/2)*Z**(-1/3)/259
+    return Z/(1+r0**2*qme)
+
+
 
 def make_delta(energy):
     '''Returns Delta (approx 15%*sqrt(E)*E) for an energy array, setting infinities and negatives to zero'''
