@@ -123,10 +123,9 @@ def make_dpde(Energy_array, coupling = 2e-10):
             dpdt_list.append(np.sqrt(lmda)*(phi_0)/(E_0) * (E/E_0)**3/(np.exp(E/E_0)-1))
     return np.array(dpdt_list)
 
-def primakoff_flux(Energy_array, coupling=2e-10, m_a = 1e-3):
+def primakoff_flux(Energy_array, coupling=2e-10, m_a = 1e-3): #Axion mass in keV
     lmda = (coupling/(1e-10))**4
     phi_e0 = 4.2e10
-
     dpde_list = []
     for E in Energy_array:
         if np.isinf(E):
