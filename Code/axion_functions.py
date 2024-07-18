@@ -151,3 +151,8 @@ def coalescence_flux(Energy_array, coupling = 2e-10, m_a = 1e-3):
 def k_from_polar(theta,phi):
     return np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
 
+def my_map(function, array):
+    output = []
+    for input in array:
+        output.append(function(input))
+    return np.array(output)
